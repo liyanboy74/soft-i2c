@@ -21,10 +21,10 @@
 #define SW_I2C1		1
 //#define SW_I2Cx		x
 
-#define  SW_I2C_WAIT_TIME  22
-#define  I2C_READ       0x01
-#define  READ_CMD       1
-#define  WRITE_CMD      0
+#define  SW_I2C_WAIT_TIME   50
+#define  I2C_READ           0x01
+#define  READ_CMD           1
+#define  WRITE_CMD          0
 
 /* functions */
 void SW_I2C_initial(void);

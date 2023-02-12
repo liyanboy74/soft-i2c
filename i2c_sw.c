@@ -14,7 +14,9 @@ void TIMER__Wait_us(__IO uint32_t nCount)
 
 void SW_I2C_initial(void)
 {
-	gpio_init_type gpio_init_struct;
+    gpio_init_type gpio_init_struct;
+    crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
+
     gpio_default_para_init(&gpio_init_struct);
     gpio_init_struct.gpio_out_type = GPIO_OUTPUT_OPEN_DRAIN;
     gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
@@ -40,41 +42,6 @@ void GPIO_ResetBits(gpio_type *GPIOx, uint16_t GPIO_Pin)
 uint8_t GPIO_ReadInputDataBit(gpio_type *GPIOx, uint16_t GPIO_Pin)
 {
 	return (uint8_t)gpio_input_data_bit_read(GPIOx,GPIO_Pin);
-}
-
-void sda_high(uint8_t sel)
-{
-    if(sel == 1)
-        GPIO_SetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
-}
-
-
-void sda_low(uint8_t sel)
-{
-    if(sel == 1)
-        GPIO_ResetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
-}
-
-
-void scl_high(uint8_t sel)
-{
-    if(sel == 1)
-        GPIO_SetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
-}
-
-
-void scl_low(uint8_t sel)
-{
-    if(sel == 1)
-        GPIO_ResetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
-}
-
-void sda_out(uint8_t sel, uint8_t out)
-{
-    if(out)
-        sda_high(sel);
-    else
-        sda_low(sel);
 }
 
 void sda_in_mode(uint8_t sel)
@@ -129,6 +96,41 @@ void scl_out_mode(uint8_t sel)
         gpio_init_struct.gpio_pins = SW_I2C1_SCL_PIN;
         gpio_init(SW_I2C1_SCL_GPIO, &gpio_init_struct);
     }
+}
+
+void sda_high(uint8_t sel)
+{
+    if(sel == 1)
+        GPIO_SetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
+}
+
+
+void sda_low(uint8_t sel)
+{
+    if(sel == 1)
+        GPIO_ResetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
+}
+
+
+void scl_high(uint8_t sel)
+{
+    if(sel == 1)
+        GPIO_SetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
+}
+
+
+void scl_low(uint8_t sel)
+{
+    if(sel == 1)
+        GPIO_ResetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
+}
+
+void sda_out(uint8_t sel, uint8_t out)
+{
+    if(out)
+        sda_high(sel);
+    else
+        sda_low(sel);
 }
 
 void i2c_clk_data_out(uint8_t sel)
