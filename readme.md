@@ -2,25 +2,25 @@
 
 原作者：https://schkorea.tistory.com/437
 
-精简了部分代码，并将STM32版示例代码移植到了AT32F415
+精简了部分代码，增加8/16bit寄存器地址的突发（连续）读写函数
 
 ## 示例
 
 **usage:**
 
-define GPIO in `i2c_sw.h`:
+define GPIO in `sw_i2c.h`:
 
 ```c
-#define   GPIO_SW_I2C1_SCL        GPIOB
-#define   GPIO_SW_I2C1_SDA        GPIOB
-#define   GPIO_SW_I2C1_SCL_PIN    GPIO_PIN_13
-#define   GPIO_SW_I2C1_SDA_PIN    GPIO_PIN_14
+#define SW_I2C1_SCL_PORT    GPIOB
+#define SW_I2C1_SDA_PORT    GPIOB
+#define SW_I2C1_SCL_PIN     GPIO_PIN_6
+#define SW_I2C1_SDA_PIN     GPIO_PIN_7
 ```
 
 **Example:**
 
 ```c
-#include "i2c_sw.h"
+#include "sw_i2c.h"
 int main()
 {
     SW_I2C_initial();

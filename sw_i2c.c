@@ -1,4 +1,4 @@
-#include "i2c_sw.h"
+#include "sw_i2c.h"
 
 #ifndef TRUE
 	#define TRUE 1
@@ -7,122 +7,128 @@
 	#define FALSE 0
 #endif
 
+//i2c_sw 初始化
+void SW_I2C_initial(void)
+{
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    //i2c_sw SCL
+    GPIO_InitStruct.Pin = SW_I2C1_SCL_PIN;
+    HAL_GPIO_Init(SW_I2C1_SCL_PORT, &GPIO_InitStruct);
+    //i2c_sw SDA
+    GPIO_InitStruct.Pin = SW_I2C1_SDA_PIN;
+    HAL_GPIO_Init(SW_I2C1_SDA_PORT, &GPIO_InitStruct);
+}
+
+//引脚置位
+void GPIO_SetBits(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+    HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
+}
+
+//引脚复位
+void GPIO_ResetBits(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+	HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);
+}
+
+//读引脚状态
+uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+	return (uint8_t)HAL_GPIO_ReadPin(GPIOx, GPIO_Pin);
+}
+
+//SDA引脚切换输入模式
+void sda_in_mode(uint8_t sel)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    if(sel == 1)
+    {
+        GPIO_InitStruct.Pin = SW_I2C1_SDA_PIN;
+        HAL_GPIO_Init(SW_I2C1_SDA_PORT, &GPIO_InitStruct);
+    }
+    // if(sel == 2)
+}
+
+//SDA引脚切换输出模式
+void sda_out_mode(uint8_t sel)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    if(sel == 1)
+    {
+        GPIO_InitStruct.Pin = SW_I2C1_SDA_PIN;
+        HAL_GPIO_Init(SW_I2C1_SDA_PORT, &GPIO_InitStruct);
+    }
+    // if(sel == 2)
+}
+
+//SCL引脚切换输入模式
+void scl_in_mode(uint8_t sel)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    if(sel == 1)
+    {
+        GPIO_InitStruct.Pin = SW_I2C1_SCL_PIN;
+        HAL_GPIO_Init(SW_I2C1_SCL_PORT, &GPIO_InitStruct);
+    }
+    // if(sel == 2)
+}
+
+//SCL引脚切换输出模式
+void scl_out_mode(uint8_t sel)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    if(sel == 1)
+    {
+        GPIO_InitStruct.Pin = SW_I2C1_SCL_PIN;
+        HAL_GPIO_Init(SW_I2C1_SCL_PORT, &GPIO_InitStruct);
+    }
+    // if(sel == 2)
+}
+
 void TIMER__Wait_us(__IO uint32_t nCount)
 {
     for (; nCount != 0; nCount--);
 }
 
-void SW_I2C_initial(void)
-{
-    gpio_init_type gpio_init_struct;
-    crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
-
-    gpio_default_para_init(&gpio_init_struct);
-    gpio_init_struct.gpio_out_type = GPIO_OUTPUT_OPEN_DRAIN;
-    gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-    gpio_init_struct.gpio_mode = GPIO_MODE_OUTPUT;
-    gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-
-    gpio_init_struct.gpio_pins = SW_I2C1_SCL_PIN;
-    gpio_init(SW_I2C1_SCL_GPIO, &gpio_init_struct);
-    gpio_init_struct.gpio_pins = SW_I2C1_SDA_PIN;
-    gpio_init(SW_I2C1_SDA_GPIO, &gpio_init_struct);
-}
-
-void GPIO_SetBits(gpio_type *GPIOx, uint16_t GPIO_Pin)
-{
-    gpio_bits_set(GPIOx, GPIO_Pin);
-}
-
-void GPIO_ResetBits(gpio_type *GPIOx, uint16_t GPIO_Pin)
-{
-	gpio_bits_reset(GPIOx, GPIO_Pin);
-}
-
-uint8_t GPIO_ReadInputDataBit(gpio_type *GPIOx, uint16_t GPIO_Pin)
-{
-	return (uint8_t)gpio_input_data_bit_read(GPIOx,GPIO_Pin);
-}
-
-void sda_in_mode(uint8_t sel)
-{
-    gpio_init_type gpio_init_struct;
-    gpio_default_para_init(&gpio_init_struct);
-    gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
-    if(sel == 1)
-    {
-        gpio_init_struct.gpio_pins = SW_I2C1_SDA_PIN;
-        gpio_init(SW_I2C1_SDA_GPIO, &gpio_init_struct);
-    }
-}
-
-void sda_out_mode(uint8_t sel)
-{
-    gpio_init_type gpio_init_struct;
-    gpio_default_para_init(&gpio_init_struct);
-    gpio_init_struct.gpio_out_type = GPIO_OUTPUT_OPEN_DRAIN;
-    gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-    gpio_init_struct.gpio_mode = GPIO_MODE_OUTPUT;
-    gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-    if(sel == 1)
-    {
-        gpio_init_struct.gpio_pins = SW_I2C1_SDA_PIN;
-        gpio_init(SW_I2C1_SDA_GPIO, &gpio_init_struct);
-    }
-}
-
-void scl_in_mode(uint8_t sel)
-{
-    gpio_init_type gpio_init_struct;
-    gpio_default_para_init(&gpio_init_struct);
-    gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
-    if(sel == 1)
-    {
-        gpio_init_struct.gpio_pins = SW_I2C1_SCL_PIN;
-        gpio_init(SW_I2C1_SCL_GPIO, &gpio_init_struct);
-    }
-}
-
-void scl_out_mode(uint8_t sel)
-{
-    gpio_init_type gpio_init_struct;
-    gpio_default_para_init(&gpio_init_struct);
-    gpio_init_struct.gpio_out_type = GPIO_OUTPUT_OPEN_DRAIN;
-    gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-    gpio_init_struct.gpio_mode = GPIO_MODE_OUTPUT;
-    gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-    if(sel == 1)
-    {
-        gpio_init_struct.gpio_pins = SW_I2C1_SCL_PIN;
-        gpio_init(SW_I2C1_SCL_GPIO, &gpio_init_struct);
-    }
-}
-
 void sda_high(uint8_t sel)
 {
     if(sel == 1)
-        GPIO_SetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
+        GPIO_SetBits(SW_I2C1_SDA_PORT, SW_I2C1_SDA_PIN);
 }
 
 
 void sda_low(uint8_t sel)
 {
     if(sel == 1)
-        GPIO_ResetBits(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
+        GPIO_ResetBits(SW_I2C1_SDA_PORT, SW_I2C1_SDA_PIN);
 }
 
 
 void scl_high(uint8_t sel)
 {
     if(sel == 1)
-        GPIO_SetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
+        GPIO_SetBits(SW_I2C1_SCL_PORT, SW_I2C1_SCL_PIN);
 }
 
 
 void scl_low(uint8_t sel)
 {
     if(sel == 1)
-        GPIO_ResetBits(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
+        GPIO_ResetBits(SW_I2C1_SCL_PORT, SW_I2C1_SCL_PIN);
 }
 
 void sda_out(uint8_t sel, uint8_t out)
@@ -260,14 +266,14 @@ void i2c_send_ack(uint8_t sel)
 uint8_t SW_I2C_ReadVal_SDA(uint8_t sel)
 {
     if(sel == 1)
-        return GPIO_ReadInputDataBit(SW_I2C1_SDA_GPIO, SW_I2C1_SDA_PIN);
+        return GPIO_ReadInputDataBit(SW_I2C1_SDA_PORT, SW_I2C1_SDA_PIN);
 	return 0;
 }
 
 uint8_t SW_I2C_ReadVal_SCL(uint8_t sel)
 {
     if(sel == 1)
-        return GPIO_ReadInputDataBit(SW_I2C1_SCL_GPIO, SW_I2C1_SCL_PIN);
+        return GPIO_ReadInputDataBit(SW_I2C1_SCL_PORT, SW_I2C1_SCL_PIN);
     return 0;
 }
 
@@ -507,6 +513,96 @@ uint8_t SW_I2C_ReadnControl_8Bit(uint8_t sel, uint8_t IICID, uint8_t regaddr, ui
     }
     pdata[rcnt-1] = SW_I2C_Read_Data(sel);
     i2c_check_not_ack(sel);
+    i2c_stop_condition(sel);
+
+    return returnack;
+}
+
+uint8_t SW_I2C_ReadnControl_8Bit_16addr(uint8_t sel, uint8_t IICID, uint16_t regaddr, uint8_t rcnt, uint8_t (*pdata))
+{
+    uint8_t   returnack = TRUE;
+    uint8_t  index;
+
+    i2c_port_initial(sel);
+    i2c_start_condition(sel);
+    //写ID
+    i2c_slave_address(sel, IICID, WRITE_CMD);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //写高八位地址
+    i2c_register_address(sel, (uint8_t)(regaddr>>8));
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //写低八位地址
+    i2c_register_address(sel, (uint8_t)regaddr);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //重启I2C总线
+    i2c_start_condition(sel);
+    //读ID
+    i2c_slave_address(sel, IICID, READ_CMD);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    //循环读数据
+    for ( index = 0 ; index < rcnt ; index++){
+    	TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    	pdata[index] = SW_I2C_Read_Data(sel);
+    }
+    pdata[rcnt-1] = SW_I2C_Read_Data(sel);
+    i2c_check_not_ack(sel);
+    i2c_stop_condition(sel);
+
+    return returnack;
+}
+
+uint8_t SW_I2C_WritenControl_8Bit(uint8_t sel, uint8_t IICID, uint8_t regaddr, uint8_t rcnt, uint8_t (*pdata))
+{
+    uint8_t   returnack = TRUE;
+    uint8_t  index;
+
+    i2c_port_initial(sel);
+    i2c_start_condition(sel);
+    i2c_slave_address(sel, IICID, WRITE_CMD);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    i2c_register_address(sel, regaddr);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    for ( index = 0 ; index < rcnt ; index++)
+    {
+        SW_I2C_Write_Data(sel, pdata[index]);
+        if (!i2c_check_ack(sel)) { returnack = FALSE; }
+        TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    }
+    i2c_stop_condition(sel);
+    return returnack;
+}
+
+uint8_t SW_I2C_WritenControl_8Bit_16addr(uint8_t sel, uint8_t IICID, uint16_t regaddr, uint8_t rcnt, uint8_t (*pdata))
+{
+    uint8_t   returnack = TRUE;
+    uint8_t  index;
+
+    i2c_port_initial(sel);
+    i2c_start_condition(sel);
+    //写ID
+    i2c_slave_address(sel, IICID, WRITE_CMD);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //写高八位地址
+    i2c_register_address(sel, (uint8_t)(regaddr>>8));
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //写低八位地址
+    i2c_register_address(sel, (uint8_t)regaddr);
+    if (!i2c_check_ack(sel)) { returnack = FALSE; }
+    TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    //写数据
+    for ( index = 0 ; index < rcnt ; index++)
+    {
+        SW_I2C_Write_Data(sel, pdata[index]);
+        if (!i2c_check_ack(sel)) { returnack = FALSE; }
+        TIMER__Wait_us(SW_I2C_WAIT_TIME);
+    }
     i2c_stop_condition(sel);
     return returnack;
 }
