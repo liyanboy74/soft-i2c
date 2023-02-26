@@ -1,4 +1,4 @@
-# Soft I2C
+# SW_I2C
 
 原作者：https://schkorea.tistory.com/437
 
