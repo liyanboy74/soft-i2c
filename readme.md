@@ -1,4 +1,6 @@
-# SW_I2C
+# Soft I2C
+
+That is Edited version of  [Original version](https://schkorea.tistory.com/437) for stm32
 
 原作者：https://schkorea.tistory.com/437
 
