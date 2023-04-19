@@ -1,4 +1,8 @@
 #include "sw_i2c.h"
+#if CNIFIC_UNISOC_8850_SUPPORT
+#include "ql_api_osi.h"
+#include "ql_gpio.h"
+#endif
 
 #ifndef TRUE
 	#define TRUE 1
@@ -7,6 +11,89 @@
 	#define FALSE 0
 #endif
 
+#if CNIFIC_UNISOC_8850_SUPPORT
+
+// sw_i2c 初始化
+void SW_I2C_initial(void)
+{
+    ql_gpio_init(AIP_SPI_DIO, GPIO_OUTPUT, PULL_NONE, LVL_HIGH); // DIO
+    ql_gpio_init(AIP_SPI_CLK, GPIO_OUTPUT, PULL_NONE, LVL_HIGH); // CLK
+    ql_delay_us(SW_I2C_WAIT_TIME);
+}
+
+// 引脚置位
+void GPIO_SetBits(uint16_t GPIO_Pin)
+{
+    ql_gpio_set_level(GPIO_Pin, LVL_HIGH);
+}
+
+// 引脚复位
+void GPIO_ResetBits(uint16_t GPIO_Pin)
+{
+    ql_gpio_set_level(GPIO_Pin, LVL_LOW);
+}
+
+// 读引脚状态
+uint8_t GPIO_ReadInputDataBit(uint16_t GPIO_Pin)
+{
+    ql_LvlMode l = 0;
+    ql_gpio_get_level(GPIO_Pin, &l);
+    return l;
+}
+
+// SDA引脚切换输入模式
+void sda_in_mode(uint8_t sel)
+{
+    ql_gpio_set_direction(SW_I2C1_SDA_PIN, GPIO_INPUT);
+    ql_gpio_set_pull(SW_I2C1_SDA_PIN, PULL_NONE);
+}
+
+// SDA引脚切换输出模式
+void sda_out_mode(uint8_t sel)
+{
+    ql_gpio_set_direction(SW_I2C1_SDA_PIN, GPIO_OUTPUT);
+}
+
+// SCL引脚切换输入模式
+void scl_in_mode(uint8_t sel)
+{
+    ql_gpio_set_direction(SW_I2C1_SCL_PIN, GPIO_INPUT);
+    ql_gpio_set_pull(SW_I2C1_SCL_PIN, PULL_NONE);
+}
+
+// SCL引脚切换输出模式
+void scl_out_mode(uint8_t sel)
+{
+    ql_gpio_set_direction(SW_I2C1_SCL_PIN, GPIO_OUTPUT);
+}
+
+void TIMER__Wait_us(uint32_t nCount)
+{
+    ql_delay_us(nCount);
+}
+
+void sda_high(uint8_t sel)
+{
+    GPIO_SetBits(SW_I2C1_SDA_PIN);
+}
+
+void sda_low(uint8_t sel)
+{
+    GPIO_ResetBits(SW_I2C1_SDA_PIN);
+}
+
+void scl_high(uint8_t sel)
+{
+    GPIO_SetBits(SW_I2C1_SCL_PIN);
+}
+
+void scl_low(uint8_t sel)
+{
+    GPIO_ResetBits(SW_I2C1_SCL_PIN);
+}
+
+
+#else
 //sw_i2c 初始化
 void SW_I2C_initial(void)
 {
@@ -15,10 +102,10 @@ void SW_I2C_initial(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //i2c_sw SCL
+    // i2c_sw SCL
     GPIO_InitStruct.Pin = SW_I2C1_SCL_PIN;
     HAL_GPIO_Init(SW_I2C1_SCL_PORT, &GPIO_InitStruct);
-    //i2c_sw SDA
+    // i2c_sw SDA
     GPIO_InitStruct.Pin = SW_I2C1_SDA_PIN;
     HAL_GPIO_Init(SW_I2C1_SDA_PORT, &GPIO_InitStruct);
 }
@@ -131,6 +218,8 @@ void scl_low(uint8_t sel)
         GPIO_ResetBits(SW_I2C1_SCL_PORT, SW_I2C1_SCL_PIN);
 }
 
+#endif
+
 void sda_out(uint8_t sel, uint8_t out)
 {
     if(out)
@@ -152,6 +241,20 @@ void i2c_port_initial(uint8_t sel)
     scl_high(sel);
 }
 
+#if CNIFIC_UNISOC_8850_SUPPORT
+uint8_t SW_I2C_ReadVal_SDA(uint8_t sel)
+{
+
+    return GPIO_ReadInputDataBit(SW_I2C1_SDA_PIN);
+}
+
+uint8_t SW_I2C_ReadVal_SCL(uint8_t sel)
+{
+
+    return GPIO_ReadInputDataBit(SW_I2C1_SCL_PIN);
+}
+#else
+
 uint8_t SW_I2C_ReadVal_SDA(uint8_t sel)
 {
     if(sel == 1)
@@ -165,6 +268,8 @@ uint8_t SW_I2C_ReadVal_SCL(uint8_t sel)
         return GPIO_ReadInputDataBit(SW_I2C1_SCL_PORT, SW_I2C1_SCL_PIN);
     return 0;
 }
+
+#endif
 
 void i2c_start_condition(uint8_t sel)
 {
